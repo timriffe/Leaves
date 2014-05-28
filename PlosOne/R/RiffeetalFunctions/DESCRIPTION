@@ -1,0 +1,21 @@
+Package: RiffeetalFunctions
+Type: Package
+Title: RiffeetalFunctions, functions for reproducing Riffe, Spijker, and
+    MacInnes (2013).
+Version: 1.0
+Date: 2013-11-04
+Author: Tim Riffe
+Maintainer: Tim Riffe <triffe@demog.berkeley.edu>
+Description: Some functions and data for reproducing calculations and figures
+    from the paper.
+License: GPL-2
+LazyLoad: yes
+Depends:
+    R (>= 2.15),
+Imports:
+    compiler
+Collate:
+    'Thano.R'
+    'PyramidOutline.R'
+    'mx2dxHMD.R'
+    'aggN.R'
