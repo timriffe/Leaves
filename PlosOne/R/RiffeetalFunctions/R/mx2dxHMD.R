@@ -1,46 +1,3 @@
-
-#'
-#' @title mx2dxHMD derive dx from mx using the HMD lifetable protocol
-#' 
-#' @description This is a typical lifetable function, but it produces only the dx column, rather than the full table. Sex is required as an argument for a0 estimation, where the new Andreev-Kingkade formula is used (to be introduced in version 6 of the HMD methods protocol).
-#' 
-#' @param mx a vector of event-exposure mortality rates.
-#' @param sex either \code{"m"} or \code{"f"}.
-#' 
-#' @return dx a vector the same length as mx, radix 1.
-#' 
-#' @author Tim Riffe \email{triffe@@demog.berkeley.edu}
-#' 
-#' @export
-#' 
-#' @importFrom compiler cmpfun
-#' 
-
-mx2dxHMD <- cmpfun(function(mx, sex = "m"){
-            mx                  <- Mna0(as.numeric(mx))
-            # mean proportion of interval passed at death
-            ax                  <- mx * 0 + .5                      # ax = .5, pg 38 MPv5
-            
-            ax[1]               <- AKm02a0(mx[1], sex)              # v6 a0 protocol
-            
-            qx                  <- mx / (1 + (1 - ax) * mx)          # Eq 60 MPv5 (identity)
-# ---------------------------------------------------------------------------------
-# set open age qx to 1
-            i.openage           <- length(mx) # removed argument OPENAGE
-            qx[i.openage]       <- 1
-            ax[i.openage]       <- 1 / mx[i.openage]                   
-# ---------------------------------------------------------------------------------
-# define remaining lifetable columns:
-            px                  <- 1 - qx       # Eq 64 MPv5
-            px[is.nan(px)]      <- 0 # skips BEL NAs, as these are distinct from NaNs
-            lx                  <- c(1, cumprod(px[1:(i.openage-1)]))
-            # NA should only be possible if there was a death with no Exp below age 80- impossible, but just to be sure
-            # lx[is.na(lx)]   <- 0 # removed for BEL testing        
-            dx                  <- lx * qx # Eq 66 MPv5
-# return result
-            Mna0(dx)
-        })
-
 #'
 #' @title AKm02q0 derive m0 from q0
 #' 
@@ -84,3 +41,46 @@ AKm02a0 <- function(m0, sex = "m"){
                     ifelse(m0 < 0.06919348, 0.0438 + 4.1075 * AKm02q0(m0, 0.0438, 4.1075), 0.3141))
     )
 }
+
+#'
+#' @title mx2dxHMD derive dx from mx using the HMD lifetable protocol
+#' 
+#' @description This is a typical lifetable function, but it produces only the dx column, rather than the full table. Sex is required as an argument for a0 estimation, where the new Andreev-Kingkade formula is used (to be introduced in version 6 of the HMD methods protocol).
+#' 
+#' @param mx a vector of event-exposure mortality rates.
+#' @param sex either \code{"m"} or \code{"f"}.
+#' 
+#' @return dx a vector the same length as mx, radix 1.
+#' 
+#' @author Tim Riffe \email{triffe@@demog.berkeley.edu}
+#' 
+#' @export
+#' 
+#' @importFrom compiler cmpfun
+#' 
+
+mx2dxHMD <- cmpfun(function(mx, sex = "m"){
+            mx                  <- Mna0(as.numeric(mx))
+            # mean proportion of interval passed at death
+            ax                  <- mx * 0 + .5                      # ax = .5, pg 38 MPv5
+            
+            ax[1]               <- AKm02a0(mx[1], sex)              # v6 a0 protocol
+            
+            qx                  <- mx / (1 + (1 - ax) * mx)          # Eq 60 MPv5 (identity)
+# ---------------------------------------------------------------------------------
+# set open age qx to 1
+            i.openage           <- length(mx) # removed argument OPENAGE
+            qx[i.openage]       <- 1
+            ax[i.openage]       <- 1 / mx[i.openage]                   
+# ---------------------------------------------------------------------------------
+# define remaining lifetable columns:
+            px                  <- 1 - qx       # Eq 64 MPv5
+            px[is.nan(px)]      <- 0 # skips BEL NAs, as these are distinct from NaNs
+            lx                  <- c(1, cumprod(px[1:(i.openage-1)]))
+            # NA should only be possible if there was a death with no Exp below age 80- impossible, but just to be sure
+            # lx[is.na(lx)]   <- 0 # removed for BEL testing        
+            dx                  <- lx * qx # Eq 66 MPv5
+# return result
+            Mna0(dx)
+        })
+
