@@ -5,11 +5,11 @@ data and code for "Thanatological Age in Human Populations" (under review)
 
 ----------------------------------
 This repository contains data and R code to reproduce all calculations and figures in the article.
-All this is under the PlosOne branch, where the /R/ folder is of interest
+All this is under the ```PlosOne branch```, where the ```/R/``` folder is of interest
 
 R scripts are divided into two groups:
 
-1) R/RiffeetalFunctions/ is a pseudo R package, which you can install and load in R live from github using:
+1) ```R/RiffeetalFunctions/``` is a pseudo R package, which you can install and load in R live from github using:
 
 ```r
 library(devtools)
