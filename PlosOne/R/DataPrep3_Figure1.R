@@ -1,9 +1,15 @@
-# library(devtools)
-# load_all("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/R/RiffeetalFunctions")
+# this script must be run prior to Figure1.R
+# the final data object produced for figure 1 is:
+# Fig1Data, a data.frame
 
+# -----------------------------------------
 
-# read in Pop data that came from IPUMS, USCB and IBGE:
-PopBrChMa <- read.csv("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/PopulationBrChMa.csv", stringsAsFactors = FALSE)
+# change this!
+setwd("/home/triffe/git/Leaves")
+
+# ------------------------------------------------------
+# read in Pop data that came from IPUMS, USCB and IBGE (processed in DataPrep2_WHO.R)
+PopBrChMa <- read.csv("PlosOne/Data/PopulationBrChMa.csv", stringsAsFactors = FALSE)
 # *redistribute counts of unknown age (NA) for Malawi:
 MALm                <- PopBrChMa[PopBrChMa$Sex == "m" & PopBrChMa$Country == "Malawi", ]
 MALf                <- PopBrChMa[PopBrChMa$Sex == "f" & PopBrChMa$Country == "Malawi", ]
@@ -23,7 +29,7 @@ PopBrChMa           <- rbind(PopBrChMa, MALm, MALf)
 # -----------------------------------------------------
 # read in HMD pop counts of interest:
 
-HMDall <- local(get(load("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/HMDAll.Rdata")))
+HMDall <- local(get(load("PlosOne/Data/HMDAll.Rdata")))
 HMDall <- as.data.frame(HMDall)
 # need USA 2010, RUS 2010 and JAP 2009:
 
@@ -32,12 +38,12 @@ PopHMD <- rbind(HMDall[with(HMDall, Code == "USA" & Year == 2010), ],
                 HMDall[with(HMDall, Code == "JPN" & Year == 2010), ]
           )
 #PopHMD <- as.data.frame(PopHMD)
-PopHMD <- PopHMD[,c("Code","Year","Sex","Age","Pop1")]
-PopHMD$Source <- "HMD"
+PopHMD           <- PopHMD[,c("Code","Year","Sex","Age","Pop1")]
+PopHMD$Source    <- "HMD"
 colnames(PopHMD) <- colnames(PopBrChMa)
 
-
-PopFig1 <- rbind(PopBrChMa,PopHMD)
+# stick together for figure 1
+PopFig1          <- rbind(PopBrChMa,PopHMD)
 
 # ------------------------------------------------------------------------------------
 # now the goal is to get dx for males and females for the same years. 
@@ -45,19 +51,19 @@ PopFig1 <- rbind(PopBrChMa,PopHMD)
 # and then rederive dx- everything else is close enough to the population year
 # ------------------------------------------------------------------------------------
 # read in WHO graduated data:
-WHOmx <- read.csv("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/WHOgraduatedRates.csv", 
+WHOmx  <- read.csv("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/WHOgraduatedRates.csv", 
          stringsAsFactors = FALSE)
  
- MAL <- WHOmx[WHOmx$Country == "Malawi", ]
+ MAL   <- WHOmx[WHOmx$Country == "Malawi", ]
  
  i2000 <- MAL$Year == 2000
- mxm1 <- MAL[i2000,"mxm"]
- mxm2 <- MAL[!i2000,"mxm"]
- mxm  <- mxm1 + (mxm2 - mxm1) / 11 * 8
+ mxm1  <- MAL[i2000, "mxm"]
+ mxm2  <- MAL[!i2000, "mxm"]
+ mxm   <- mxm1 + (mxm2 - mxm1) / 11 * 8
  
- mxf1 <- MAL[i2000,"mxf"]
- mxf2 <- MAL[!i2000,"mxf"]
- mxf  <- mxf1 + (mxf2 - mxf1) / 11 * 8
+ mxf1  <- MAL[i2000, "mxf"]
+ mxf2  <- MAL[!i2000, "mxf"]
+ mxf   <- mxf1 + (mxf2 - mxf1) / 11 * 8
 
  MAL <- data.frame(Country = "Malawi", Year = 2008, Age = 0:110, 
          mxm = mxm, mxf = mxf, 
@@ -110,8 +116,6 @@ names(Fig1Data) <- unique(dxFig1$Country)
 # names, for consistency
 names(Fig1Data)[names(Fig1Data)=="RUS"] <- "Russia"
 names(Fig1Data)[names(Fig1Data)=="JPN"] <- "Japan"
-
-
 
 
 

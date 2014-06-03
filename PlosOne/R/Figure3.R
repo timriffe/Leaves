@@ -1,69 +1,18 @@
+# figure 3 compares some historical leaves with contemporary leaves
+# uses data object produced in DataPrep1_HMD.R,
+# which is sitting in ~/PlosOne/Data/
+# HMDall.Rdata
+# script includes many other interactive results. Figure 3 is around line 300
 
-library(devtools) 
-load_all("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/R/RiffeetalFunctions")
-setwd("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne")
-#source("R/DataPrep3_Figure1.R")
-#colsFun1        <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(9, "YlGnBu"), space = "Lab")
-#colsFun2        <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(9, "RdPu")), space = "Lab")
+# change this!
+setwd("/home/triffe/git/Leaves")
 
-# Same thing as Figure 1, but it terms of total lifespan.
-#Males     <- Fig1Data[["USA"]][["Male"]]
-#Females     <- Fig1Data[["USA"]][["Female"]]
-#TOT         <- sum(Males) + sum(Females)
-#
-#LS      <- outer(.5:110.5, .5:110.5, "+")
-#LSgrp   <- LS - LS %% 10
-#
-#DAT <- data.frame(Age = c(col(Males) - 1),
-#        RY = c(row(Males) - 1),
-#        LS = c(LSgrp),
-#        Males = c(Males)/TOT,
-#        Females = c(Females)/TOT)
-#
-#LScolm <- reshape2::acast(DAT, Age~LS, sum, value.var = "Males")
-#LScolf <- reshape2::acast(DAT, Age~LS, sum, value.var = "Females")
-#
-#cumHet1m    <- -t(apply(LScolm, 1, cumsum))
-#cumHet1f    <- t(apply(LScolf, 1, cumsum))
-#
-#cols1       <- colsFun1(ncol(cumHet1m))
-#
-#y           <- c(0, rep(1:110, each = 2), 111)
-#
-#plot(NULL, type="n", xlim = c(-.012,.012),ylim=c(0,111))
-#
-#
-#for (i in ncol(cumHet1m):1){
-#    Cm <- rep(cumHet1m[, i], each = 2)
-#    Cf <- rep(cumHet1f[, i], each = 2)
-#    polygon(c(Cm, rev(Cf)), c(y,rev(y)), border = NA, col = cols1[i])
-#}
-#
-#
-#LScolm <- reshape2::acast(DAT, RY~LS, sum, value.var = "Males")
-#LScolf <- reshape2::acast(DAT, RY~LS, sum, value.var = "Females")
-#cumHet1m    <- -t(apply(LScolm, 1, cumsum))
-#cumHet1f    <- t(apply(LScolf, 1, cumsum))
-#
-#cols1       <- colsFun1(ncol(cumHet1m))
-#
-#y           <- c(0, rep(1:110, each = 2), 111)
-#
-#plot(NULL, type="n", xlim = c(-.012,.012),ylim=c(0,111))
-#
-#
-#for (i in ncol(cumHet1m):1){
-#    Cm <- rep(cumHet1m[, i], each = 2)
-#    Cf <- rep(cumHet1f[, i], each = 2)
-#    polygon(c(Cm, rev(Cf)), c(y,rev(y)), border = NA, col = cols1[i])
-#}
-
-
-
+library(RiffeetalFunctions) # see DataPrep1_HMD.R for installation
 library(data.table) # speedy
 library(reshape2)   # handy
 #
-Data <- local(get(load("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/HMDAll.Rdata")))
+Data <- local(get(load("PlosOne/Data/HMDAll.Rdata")))
+
 # remove Belgium gap WWI
 Data <- Data[! (Data$Code == "BEL" & Data$Year >= 1914 & Data$Year <= 1918),]
 
@@ -117,13 +66,13 @@ OADRs  <- acast(OADR,Year~Code,value.var = "OADR")
 
 # years are x for plotting
 years  <- as.integer(rownames(OADRs))
-# spaghetti!
+# spaghetti! ( not shown in paper)
 matplot(years, Pu15R, type = 'l', lty = 1, col = "#00000050", ylim = c(0, .45))
 matplot(years, Pu15S, type = 'l', lty = 1, add = TRUE, col = "#FF000050")
 matplot(years, OADRs, type = 'l', lty = 1, add = TRUE, col = "#0000FF50")
 legend("bottomleft",col=c("black","red","blue"),lty=1,legend = c("RLS<=15","RLE<=15","OADR"))
 
-
+# how do these compare in the recent period?
 matplot(years,Pu15R,type='l',lty=1,col="#00000050",ylim=c(0,.3), xlim = c(1950,2012))
 matplot(years,Pu15S,type='l',lty=1,add=TRUE,col="#FF000050")
 
@@ -142,7 +91,10 @@ frac  <- rle15 - floor(rle15)
             (1-frac) * Data$Lx[1:111][(0:110) == floor(rle15)]) / 
         sum(Data$Lx[1:111])
 
-# figure for poster!
+# ----------------------------------------------------
+# these ended up in a poster at PAA, 2014.
+# not in paper, but they tell a wonderful
+# story of historical population change.
 
 #pdf("/home/triffe/git/PAA2014poster/PAA2014Poster/Figures/TimeSeries.pdf", width = 12, height = 12)
 years <- 1751:2011
@@ -294,8 +246,10 @@ colnames(MYRiffeM)[order((MYRiffeM - MeanAgeM)["2009",])]
 
 # less: for the whole population, we have the same result as for Sanderson & Scherbov,
 # but for individual thanatological age classes, we have different results. We should then 
-# showcase the different results.
-range(Data$Year[Data$Code == "USA"])
+# showcase the different results. But then we're not going to mention such
+# minutea in the paper, no point for this audience I don't think.
+
+# more graphical experimentation
 makePyrOutline <- function(Data, .Code = "USA", .Year = 1940,Age = TRUE,...){
     if (Age){
         Males   <- Data$Pop1[with(Data, Sex == "m" & Code == .Code & Year == .Year)]
@@ -343,9 +297,12 @@ makeBG <- function(x,y,xlim=c(-.02,.02),tl = 5,l=TRUE,col=gray(.94),border=NA,lw
     }
 }
 
-
-#
+##############################
+# for PlosOne, figure 3
+##############################
+# clean devices
 graphics.off()
+
 y.spacing       <- 130
 y.grid          <- seq(0, 1 * y.spacing, by = y.spacing)
 fac             <- 7.20472 / 5
@@ -354,10 +311,11 @@ x2              <- .033
 xlim1           <- c(-.015,.015)
 xlim2           <- c(-.01,.01)
 FigureCountries <- c("USA","SWE")
+
 library(extrafont)
 #font_import()
 loadfonts(device = "postscript")
-postscript("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Figures/Figure3.eps", 
+postscript("PlosOne/Figures/Figure3.eps", 
         height = 5, width = 6.83,
         family = "Arial", paper = "special", onefile = FALSE, bg = "white",
         horizontal = FALSE, pointsize = 12)
@@ -422,92 +380,5 @@ text(x1+xlim1[1]-.003,62,"Years lived",srt=90,cex=10/12,pos=2)
 text(x2+xlim2[2]+.003,62,"Years left",srt=270,cex=10/12,pos=4)
 
 dev.off()
-##############################
-# for PlosOne
-##############################
-#y.spacing       <- 130
-#y.grid          <- seq(0, 5 * y.spacing, by = y.spacing)
-#fac <- 7.20472 / 5
-#x1 <- -.005
-#x2 <- .028
-#xlim1 <- c(-.02,.02)
-#xlim2 <- c(-.01,.01)
-## getting Arial
-##install_github("Rttf2pt1", "wch")
-##install.packages("extrafont",dependencies=TRUE)
-#library(extrafont)
-##font_import()
-#loadfonts(device = "postscript")
-##postscript("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Figures/Figure1.eps", 
-##        height = 9.19, width = 6.83,
-##        family = "Arial", paper = "special", onefile = FALSE, bg = "white",
-##        horizontal = FALSE, pointsize = 12)
-##dev.new(family = "Arial",height = 9.19, width = 6.83)
-#par(mai = c(0,0,0,0), xaxs = "i", yaxs = "i",xpd=TRUE)
-#plot(NULL, type = "n", xlim = c(-.036,.054), ylim = c(-60, 810), 
-#        axes = FALSE, xlab = "",ylab="")
-#invisible(sapply(y.grid,function(y){
-#                    makeBG(x=x1,y=y,xlim=xlim1,col=NA, border = gray(.8), lwd = .5)  
-#                    makeBG(x=x2,y=y,xlim=xlim2,l=FALSE,col=NA,border = gray(.8), lwd = .5)  
-#                }))
-#for (i in 1:6){
-#    plotRow(PlotData[[FigureCountries[i]]],x1=x1,x2=x2,y=rev(y.grid)[i])
-#}
-## label countries
-#text(-.0355,y.grid+75,
-#        c("Malawi\n(2008)","China\n(2011)","Brazil\n(2010)","Russia\n(2010)","Japan\n(2010)","US\n(2010)"),
-#        cex=(8/12),pos=4)
-#text(-.0355,y.grid+100,
-#        c("F","E","D","C","B","A"),
-#        cex=1,pos=4,font=2)# bold
-## x axis labels
-#text(seq(xlim1[1],xlim1[2],by=.005)+x1,0,c("2.0%","1.5%","1.0%","0.5%","0","0.5%","1.0%","1.5%","2.0%"),pos=1,cex=8/12)
-#text(seq(xlim2[1],xlim2[2],by=.005)+x2,0,c("1.0%","0.5%","0","0.5%","1.0%"),pos=1,cex=8/12)
-#
-## y axis labels
-#text(xlim1[1]+x1, outer(seq(0, 100, by = 20), y.grid, "+"), seq(0, 100, by = 20), pos = 2, cex = 8/12)
-#text(xlim2[2]+x2, outer(seq(0, 100, by = 20), y.grid, "+"), seq(0, 100, by = 20), pos = 4, cex = 8/12)
-## male female labels:
-#text(-.002 + x1, -30, "Male", cex = 10/12, pos = 2)
-#text(.002 + x1, -30, "Female", cex = 10/12, pos = 4)
-#text(-.002 + x2, -30, "Male", cex = 10/12, pos = 2)
-#text(.002 + x2, -30, "Female", cex = 10/12, pos = 4)
-#
-## now for color strip legends
-#RYcols <- colsFun1(12)
-#Acols  <- rev(colsFun2(12))
-## left side legend (remaining years colors)
-#y.at <- seq(0,300,length.out=13)
-#
-#xl <- .045
-#lw <- .004
-#rect(xl,y.at[1:12],xl+lw,y.at[2:13],border = "white", col = RYcols)
-#text(xl+lw,y.at[1:12],seq(0,110,by=10),pos=4,cex = 8/12)
-#text(xl+lw/2,max(y.at)+18,"Years\nleft",cex=10/12)
-## right side legend (age colors)
-#rect(xl,y.at[1:12]+400,xl+lw,y.at[2:13]+400,border = "white", col = rev(Acols))
-#text(xl+lw,y.at[1:12]+400,seq(0,110,by=10),pos=4,cex =8/12)
-#text(xl+lw/2,max(y.at)+400+18,"Years\nlived",cex=10/12)
-#
-## main title
-#text(x1+xlim1[2],max(y.grid )+33+111,"Pyramids",pos=2,cex=1, font=2)
-#text(x1+xlim1[2],max(y.grid )+16+111,"(shade indicates years left)",pos=2,cex=10/12)
-#text(x2+xlim2[1],max(y.grid )+33+111,"Leaves",pos=4, font = 2)
-#text(x2+xlim2[1],max(y.grid )+16+111,"(shade indicates years lived)",pos=4,cex=10/12)
-##text(c(-.01,-.01,.04,.04),c(200,700,200,700),"Draft",cex=11,srt=45,col = "#CCCCCC40")
-#
-##text(x1+xlim1[1]-.001,max(y.grid) + 16 + 111, "Years\nlived", pos = 2, cex = 10/12)
-##text(x2+xlim2[2]+.001,max(y.grid) + 16 + 111, "Years\nleft", pos = 4, cex = 10/12)
-##arrows(c(x2+xlim2[2]+.0032,x1+xlim1[1]-.0032), rep(max(y.grid) + 107,2), 
-##        c(x2+xlim2[2]+.0032,x1+xlim1[1]-.0032), rep(max(y.grid) + 70,2), length=.06, lwd = .5)
-##
-#
-##text(x1+xlim1[1]-.001,min(y.grid) -25, "Years\nlived", pos = 2, cex = 10/12)
-##text(x2+xlim2[2]+.001,min(y.grid) -25, "Years\nleft", pos = 4, cex = 10/12)
-##arrows(c(x2+xlim2[2]+.0032,x1+xlim1[1]-.0032), rep(min(y.grid) + 70,2), 
-##        c(x2+xlim2[2]+.0032,x1+xlim1[1]-.0032), rep(min(y.grid) + 107,2), length=.06, lwd = .5)
-#
-#
-#text(x1+xlim1[1]-.003,62,"Years lived",srt=90,cex=10/12,pos=2)
-#text(x2+xlim2[2]+.003,62,"Years left",srt=270,cex=10/12,pos=4)
-##dev.off()
+
+

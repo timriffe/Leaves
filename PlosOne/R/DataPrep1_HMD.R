@@ -1,3 +1,10 @@
+# this script does not need to be re-run, as the output data object,
+# HMDAll.Rdata, is already in ~/PlosOne/Data
+# runnig this script will re-produce that object. Since data is pulled from
+# HMD live from the web, if there has been an update in the HMD, the data
+# may vary slightly, but no substantive differences are expected.
+# ----------------------------------------------------------
+
 # change this!
 setwd("/home/triffe/git/Leaves")
 
@@ -6,8 +13,8 @@ setwd("/home/triffe/git/Leaves")
 #library(RiffeetalFunctions)
 library(data.table)
 library(devtools)
-install_github("DemogBerkeley", subdir = "DemogBerkeley", username = "UCBdemography")
-install_github("Leaves", subdir = "PlosOne/R/RiffeetalFunctions", username = "timriffe")
+install_github("DemogBerkeley", subdir = "DemogBerkeley", username = "UCBdemography")    # outside tool
+install_github("Leaves", subdir = "PlosOne/R/RiffeetalFunctions", username = "timriffe") # belongs to paper
 library(RiffeetalFunctions)
 library(DemogBerkeley)
 # -------------------------------------------------------------------------------

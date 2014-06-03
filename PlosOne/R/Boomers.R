@@ -1,26 +1,12 @@
 # Author: triffe
 ###############################################################################
 
-#Dx <- read.csv("/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/USCBdeaths.csv", stringsAsFactors = FALSE)
-#
-## Male = 1
-## Female = 2
-## Total = 0
-## make male and female matrices:
-#Dxm           <- as.matrix(Dx[Dx$SEX == 1, 5:ncol(Dx)])
-#Dxf           <- as.matrix(Dx[Dx$SEX == 2, 5:ncol(Dx)])
-#rownames(Dxf) <- rownames(Dxm) <- sort(unique(Dx$YEAR))
-#colnames(Dxf) <- colnames(Dxm) <- 0:85
-## transpose to age by year:
-#Dxm           <- t(Dxm)
-#Dxf           <- t(Dxf)
+library(DemogBerkeley) # see DataPrep1_HMD.R to install this package
 
-# Need to break up 85+, but where to put them? 
-# Instead we should thanatologically redistribute the 85+ population?
+username      <- userInput() # INTERACTIVE! enter HMD username in console, no quotes, then press enter
+password      <- userInput() # INTERACTIVE! enter HMD password in console, no quotes, then press enter
 
-library(DemogBerkeley)
-username      <- userInput()
-password      <- userInput()
+# read in data objects from HMD web
 mlt           <- readHMDweb("USA", "mltper_1x1", username = username, password = password)
 flt           <- readHMDweb("USA", "fltper_1x1", username = username, password = password)
 P             <- readHMDweb("USA", "Population", username = username, password = password)
@@ -31,23 +17,22 @@ mxmHMD <- acast(mlt, Age~Year, value.var = "mx")
 mxfHMD <- acast(flt, Age~Year, value.var = "mx")
 #colnames(mxmHMD) # 2010 most recent
 
-# I think the hybrid data-mungy procedure is far too messy and difficult to explain. It'd
-# make much more sense to simply assume certain annual rates of improvement: 0, .5%, 1%
+# simply assume certain annual rates of improvement: 0, .5%, 1%
 # ----------------------------------------------------
 # so what have been some empirical rates of improvement, just to make sure we're in the usual range:
 # ----------------------------------------------------
-# looked at different year-ranges.
+# look at different year-ranges.
 # avg improvement varies greatly over age, and only recently has 100+ mortality even begun to improve.
-# ranges between -1% and 4% improvement per age per year, and most vaues are in the 1% to 3% range.
-# therefore a conservative assumption would be sustaied .5% increases per age per year. Very modest.
-# if the pattern continues, large gains are in store for ages 90+, which will be our boomers down the road.
+# ranges between -1% and 4% improvement per age per year, and most values are in the 1% to 3% range.
+# therefore a very conservative assumption would be sustained .5% increases per age per year. Very modest.
+# If the pattern continues, large gains are in store for ages 90+, which will be our boomers down the road.
 yr1 <- as.character(1933:2009)
 yr2 <- as.character(1934:2010)
-#
+
+# change matrix for males
 chgm <- (2*(mxmHMD[,yr2] - mxmHMD[,yr1])) / 
         (mxmHMD[,yr1] + mxmHMD[,yr2]) 
-
-#
+# change matrix for females
 chgf <- (2*(mxfHMD[,yr2] - mxfHMD[,yr1])) / 
         (mxfHMD[,yr1] + mxfHMD[,yr2]) 
 # function from http://druedin.com/2012/08/11/moving-averages-in-r/
@@ -55,7 +40,7 @@ mav <- function(x,n=5){filter(x,rep(1/n,n), sides=2)}
 AnnImprov   <- -(colMeans(chgm) + colMeans(chgf))/2
 yrs         <- 1933:2009
 #plot(yrs,cumprod(1+AnnImprov)/((1934:2010)-1934),xlim=c(1950,2010),ylim=c(0,.05)) # not same
-# graphics.off()
+# take a look at observed improvements since 1933
 plot(yrs, AnnImprov, pch = 19, col="gray",main = "Sustained improvements\nbetween .5% and 3% per annum on avg")
 lines(yrs, mav(AnnImprov, 8), col = "blue")
 lines(predict(smooth.spline(AnnImprov~yrs)), col = "green")
@@ -73,10 +58,12 @@ legend("topright",
 Pm2011  <- P$Male2[P$Year == 2010]
 Pf2011  <- P$Female2[P$Year == 2010]
 
-horizon <- 65                    # how many years out do we need to jump in order to have full attrition
-years   <- 2011:(2011 + horizon - 1) # concretely,which years do we project through?
-# different improvement possibilities
+horizon <- 65                        # how many years out do we need to jump in 
+                                     # order to have essentially full attrition
+years   <- 2011:(2011 + horizon - 1) # concretely, which years do we project through?
+# different improvement trajectories
 
+# improvement container...
 iota.assumptions       <- matrix(nrow = horizon, ncol = 6, dimnames = list(years, 1:6))
 iota.assumptions[,1]   <- rep(0, horizon)    # 1) iota = 0 = constant from jump off year
 iota.assumptions[,2]   <- rep(.005, horizon) # 2) iota = .005 = 1/2 percent better per age per year = conservative
@@ -88,6 +75,10 @@ iota.assumptions[,6]   <- rep(.02, horizon)   # 6) iota = .02 = 2 percent improv
 matplot(years,iota.assumptions,type='l',main="rate improvement assumptions")
 # applied of the form:
 # mx.improv = mx.prev * prod(1-iota.i[x:iteration])
+# OK, so these are the different trajectories we could have shown. Comparing
+# with history, our most optimistic assumption is sort of middle-road.
+# were we to be waaay optimistic in presenting results, this would only
+# demonstrate our case more, so I think this is enough to make the point
 
 # ----------------------------------------------------------
 # now for the actual data exercise: how diffuse will the attrition of the boomers be?
@@ -146,12 +137,17 @@ e0m <- apply(iota.assumptions,2,function(iota, .mx){
 
 # the logisitc decrease in improvement (2% to 0%) is a kind of old-school
 # scenario. I don't actually think we'll max-out so easily, but who's to say
-# how things will be in 60 years. Further, the ending-e0 of this scenario
-# implies attaining Japans CURRENT e0 after 60 years. So if I had to choose
+# how things will be in 60 years? It depends more on substantive changes in
+# technology, environment and lifestyle than it does on statistics time-series
+# hence, we choose the simplt path. 
+# Further, the ending-e0 of this scenario
+# implies attaining Japan's CURRENT e0 after 60 years. So if I had to choose
 # between the 2% and the logisitc tapering, I'd almost bet on the constant
 # improvement, because 1) the US is a lagger, and should catch up with the 
 # leader one day and 2) the current leader (Japan) will also continue to
 # improve. i.e., there is *plenty* of room for improvement in the US.
+# to say it will be lower than 2% is like saying 1) Japan will no longer improve
+# and 2) the US will never catch up. I don't buy it. 2% is possible.
 
 # Take a look at all e0 trajectories:
 
@@ -162,14 +158,14 @@ e0f[,6] - 86.43 # 2035
 e0m[,6] - 79.96 # 2025
 e0f[,5] - 86.43 # 2037
 e0m[,5] - 79.96 
+
+# convenient artifact:
 # constant rates of improvement entail convergence between the sexes (truism)
 matplot(years, e0f-e0m, type='l') 
 
 # these are the 3 trajectories that will go into the boomer plot:
 matplot(years, e0f[,c(1,5,6)], type='l',ylim=c(75,98), lty=1)
 matplot(years, e0m[,c(1,5,6)], type='l',ylim=c(75,98), add= TRUE, lty=2)
-
-# ---------------------------------------------------------
 
 # ---------------------------------------------------------
 # the redistribution (death projection) function to be used here.
@@ -223,14 +219,13 @@ for (i in 1:6){
     DF[i, ] <- colSums(getFx(mxf, iota.assumptions[, i], boomers, b.i) * Pf2011[b.i])
 }
 (B <- sum(Pm2011[b.i]) + sum(Pf2011[b.i])) # 78 million boomers on Jan 1, 2011! Wow, that's a lot!
-#rowSums(DM + DF)-B # sums match!
+# rowSums(DM + DF)-B # sums match!
 # males and females: females dashed, colors correspond to iota assumptions
 matplot(years,t(DF), type = 'l', lty = 2,
         ylab = "Deaths", xlab="Year",main = "Male and Female boomer decrement\ndifferent assumptions of annual mortality improvement")
 matplot(years,t(DM), type = 'l', lty = 1, add = TRUE)
 
-# we plot them together:
-
+# we plot them together (gets fatter)
 matplot(t(DM + DF), type = 'l')
 
 # a quantile function for these data. Mostly to find the middle bulk and the right tail
@@ -268,26 +263,32 @@ Quantiles[,"0.75"] - Quantiles[,"0.25"]
 #    to vary over age. A look back over time will have us think that even bigger improvements are in
 #    store for the older age groups that the boomers will pass through.
 
-save(DD, file="/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/BoomerDx.Rdata")
-save(Quantiles, file="/home/triffe/git/RiffeSpijkerMacInnes1/PlosOne/Data/BoomerQuantiles.Rdata")
+save(DD, file="PlosOne/Data/BoomerDx.Rdata")
+save(Quantiles, file="PlosOne/Data/BoomerQuantiles.Rdata")
 
 # ---------------------------------------------------------------------------
-cMx <- readHMDweb("USA","cMx_1x1",username,password)
-Bt <- readHMDweb("USA","Births",username,password)
+# some other trivia in the paper:
 
-bommerc <- as.character(boomers)
+# cMx is cohort Mx
+cMx <- readHMDweb("USA","cMx_1x1",username,password)
+Bt  <- readHMDweb("USA","Births",username,password)
+
+bommerc    <- as.character(boomers)
 BommercMxm <- acast(cMx, Age~Year, value.var = "Male")[,bommerc]
 BommercMxf <- acast(cMx, Age~Year, value.var = "Female")[,bommerc]
 
+# calculate cohort lx from cohort Mx
 ml2010 <- apply(BommercMxm, 2, function(mx){
             rev(mx2lx(mx[!is.na(mx)]))[1]
         })
 fl2010 <- apply(BommercMxf, 2, function(mx){
             rev(mx2lx(mx[!is.na(mx)]))[1]
         })
-
+# original boomers by year of birth:
 Morig <- Bt$Male[Bt$Year >= 1946 & Bt$Year <= 1964]
 Forig <- Bt$Female[Bt$Year >= 1946 & Bt$Year <= 1964]
-sum(Morig+Forig)
-sum(Morig*ml2010+Forig*fl2010)
 
+sum(Morig+Forig)               # original boomers
+sum(Morig*ml2010+Forig*fl2010) # boomers on Jan 1, 2011 had there been no migration
+
+# end
