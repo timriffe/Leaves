@@ -5,7 +5,7 @@ data and code for "Thanatological Age in Human Populations" (under review)
 
 ----------------------------------
 This repository contains data and R code to reproduce all calculations and figures in the article.
-All this is under the ```PlosOne branch```, where the ```/R/``` folder is of interest
+All this is under the ```PlosOne``` branch, where the ```/R/``` folder is of interest
 
 R scripts are divided into two groups:
 
