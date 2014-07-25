@@ -5,8 +5,7 @@ This repository contains data and code for a paper with  [Jeroen Spijker](http:/
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Thanatological Age in Human Populations</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://sites.google.com/site/timriffepersonal/" property="cc:attributionName" rel="cc:attributionURL">Timothy L. M. Riffe</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
-This repository contains data and R code to reproduce all calculations and figures in the article.
-All this is under the ```PlosOne``` branch, where the ```/R/``` folder is of interest
+Pertinent R code to reproduce all calculations and figures in the article is under the ```PlosOne``` branch, where the ```/R/``` folder is of interest
 
 R scripts are divided into two groups:
 
