@@ -1,8 +1,9 @@
 Leaves
 ======
 
-data and code for "Thanatological Age in Human Populations" (under review)
+data and code for a paper with  [Jeroen Spijker](http://www.ced.uab.es/index.php?module=pagesetter&func=viewpub&tid=12&pid=21) and [John MacInnes](http://www.sps.ed.ac.uk/staff/sociology/macinnes_john), "Thanatological Age in Human Populations" (under review). It is likely too early to cite, but you may do so, and you may also use whatever you like here, with attribution:
 
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Thanatological Age in Human Populations</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://sites.google.com/site/timriffepersonal/" property="cc:attributionName" rel="cc:attributionURL">Timothy L. M. Riffe</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 ----------------------------------
 This repository contains data and R code to reproduce all calculations and figures in the article.
 All this is under the ```PlosOne``` branch, where the ```/R/``` folder is of interest
