@@ -13,7 +13,7 @@ R scripts are divided into two groups:
 
 ```r
 library(devtools)
-install_github("Leaves", subdir = "PlosOne/R/RiffeetalFunctions", username = "timriffe")
+install_github("timriffe/Leaves", subdir = "PlosOne/R/RiffeetalFunctions")
 library(RiffeetalFunctions)
 ```
 
